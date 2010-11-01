@@ -11,6 +11,9 @@ create or replace package xt_regexp is
 
   function split_simple(p_str in varchar2,p_delim in varchar2)
     return varchar2_table pipelined;
+    
+  function clob_split_simple(p_clob in clob,p_delim in varchar2) 
+    return clob_table pipelined;
 /**
  * function split. Split string by regexp and returns 
  */
@@ -132,6 +135,27 @@ create or replace package body xt_regexp is
         end if;
       end loop;
   end split_simple;
+  
+/**
+ * Clob simple split
+ */
+  function clob_split_simple(p_clob in clob,p_delim in varchar2) 
+  return clob_table pipelined is
+    row clob;
+    l_b number:=1;
+    l_e number:=1;
+  begin
+      while l_e>0
+        loop
+          l_e:=dbms_lob.instr(p_clob,p_delim,l_b);
+          if l_e>0 then
+            pipe row(dbms_lob.substr(p_clob,l_e-l_b,l_b));
+            l_b:=l_e+1;
+          else
+            pipe row(dbms_lob.substr(p_clob,dbms_lob.getlength(p_clob)+1-l_b,l_b));
+          end if;
+        end loop;
+  end clob_split_simple;
 /**
  * function split
  */
