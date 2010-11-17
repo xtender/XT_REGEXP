@@ -74,7 +74,7 @@ public class XT_REGEXP
 
          Connection conn = new OracleDriver().defaultConnection();         
          ArrayDescriptor descriptor =
-            ArrayDescriptor.createDescriptor("XTENDER.VARCHAR2_TABLE", conn );
+            ArrayDescriptor.createDescriptor("VARCHAR2_TABLE", conn );
          oracle.sql.ARRAY outArray = new oracle.sql.ARRAY(descriptor,conn,list.toArray());
          
          return outArray;
