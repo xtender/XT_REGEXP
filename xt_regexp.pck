@@ -116,7 +116,7 @@ create or replace package xt_regexp is
  * Function returning longest identical substring
  */
   function longest_overlap(str1 varchar2,str2 varchar2,modifier varchar2 default 'i') return varchar2;
-  
+
 end xt_regexp;
 /
 create or replace package body xt_regexp is
@@ -278,13 +278,15 @@ create or replace package body xt_regexp is
    j pls_integer;
    l pls_integer:=0;
    max_str varchar2(4000):='';
-   b boolean;
+   l_str1 varchar2(4000);
+   l_str2 varchar2(4000);
   begin
-    for i in 1..length(str1) loop
+    l_str1:=case lower(modifier) when 'i' then upper(str1) else str1 end;
+    l_str2:=case lower(modifier) when 'i' then upper(str2) else str2 end;
+    for i in 1..length(l_str1) loop
       j:=l+1;
       loop
-        b:=regexp_like(str2,'.*'||substr(str1,i,j)||'.*',modifier);
-        exit when not b;
+        exit when instr(l_str2,substr(l_str1,i,j))=0 or i+j=length(l_str2);
         l:=j;
         max_str:=substr(str1,i,j);
         j:=j+1;
