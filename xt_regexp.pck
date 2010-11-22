@@ -112,7 +112,11 @@ create or replace package xt_regexp is
     return varchar2
     IS LANGUAGE JAVA
     name 'com.xt_r.XT_REGEXP.replaceChar(java.lang.String,java.lang.String,java.lang.String) return java.lang.String';
-
+/**
+ * Function returning longest identical substring
+ */
+  function longest_overlap(str1 varchar2,str2 varchar2,modifier varchar2 default 'i') return varchar2;
+  
 end xt_regexp;
 /
 create or replace package body xt_regexp is
@@ -265,6 +269,28 @@ create or replace package body xt_regexp is
                case when pUNIX_LINES      >0 then UNIX_LINES       else 0 end,
                pDelim);
     end;
-
+/**
+ * Function returning longest identical substring
+ */
+  function longest_overlap(str1 varchar2,str2 varchar2,modifier varchar2 default 'i') return varchar2
+  is
+   i pls_integer;
+   j pls_integer;
+   l pls_integer:=0;
+   max_str varchar2(4000):='';
+   b boolean;
+  begin
+    for i in 1..length(str1) loop
+      j:=l+1;
+      loop
+        b:=regexp_like(str2,'.*'||substr(str1,i,j)||'.*',modifier);
+        exit when not b;
+        l:=j;
+        max_str:=substr(str1,i,j);
+        j:=j+1;
+      end loop;
+    end loop;
+    return max_str;
+  end longest_overlap;
 end xt_regexp;
 /
