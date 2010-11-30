@@ -311,7 +311,6 @@ create or replace package body xt_regexp is
     loop
       match:=regexp_substr(l_str,p_pattern,p,1);
       exit when length(match) is null;
-      exit when c>10;
       c:=c+1;
       p:=p+instr(substr(l_str,p),match)-1;
       l:=length(match);
