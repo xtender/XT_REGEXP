@@ -116,7 +116,10 @@ create or replace package xt_regexp is
  * Function returning longest identical substring
  */
   function longest_overlap(str1 varchar2,str2 varchar2,modifier varchar2 default 'i') return varchar2;
-
+/**
+ * Function replace matches with result of your function(number_match,match_string)
+ */
+  function replace_by_func(p_str in varchar2, p_pattern in varchar2, p_func in varchar2) return varchar2;
 end xt_regexp;
 /
 create or replace package body xt_regexp is
@@ -294,5 +297,40 @@ create or replace package body xt_regexp is
     end loop;
     return max_str;
   end longest_overlap;
+/**
+ * Function replace matches with result of your function(number_match,match_string)
+ */
+  function replace_by_func(p_str in varchar2, p_pattern in varchar2, p_func in varchar2) return varchar2 is
+    l_str varchar2(4000):=p_str;
+    match varchar2(4000);
+    rep_str varchar2(4000);
+    c number:=0;
+    p number:=1;
+    l number;
+  begin
+    loop
+      match:=regexp_substr(l_str,p_pattern,p,1);
+      exit when length(match) is null;
+      exit when c>10;
+      c:=c+1;
+      p:=p+instr(substr(l_str,p),match)-1;
+      l:=length(match);
+      execute immediate 'select '||p_func||'(:1,:2) from dual' into rep_str using c,match;
+      l_str:=regexp_replace(
+                           l_str,
+                           p_pattern,
+                           rep_str
+                          ,p,1);
+      p:=p+length(rep_str);
+    end loop;
+
+    execute immediate
+    'select '''
+           ||l_str
+           ||''' from dual'
+     into l_str;
+
+    return(l_str);
+  end replace_by_func;
 end xt_regexp;
 /
