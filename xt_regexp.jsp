@@ -26,7 +26,7 @@ public class XT_REGEXP
 
          Connection conn = new OracleDriver().defaultConnection();         
          ArrayDescriptor descriptor =
-            ArrayDescriptor.createDescriptor("VARCHAR2_TABLE", conn );
+            ArrayDescriptor.createDescriptor("SYS.ODCIVARCHAR2LIST", conn );
          oracle.sql.ARRAY outArray = new oracle.sql.ARRAY(descriptor,conn,retArray);
          
          return outArray;
@@ -81,7 +81,7 @@ public class XT_REGEXP
 
          Connection conn = new OracleDriver().defaultConnection();         
          ArrayDescriptor descriptor =
-            ArrayDescriptor.createDescriptor("VARCHAR2_TABLE", conn );
+            ArrayDescriptor.createDescriptor("SYS.ODCIVARCHAR2LIST", conn );
          oracle.sql.ARRAY outArray = new oracle.sql.ARRAY(descriptor,conn,list.toArray());
          
          return outArray;
