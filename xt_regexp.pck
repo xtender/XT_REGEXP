@@ -291,7 +291,7 @@ create or replace package body xt_regexp is
     for i in 1..length(l_str1) loop
       j:=l+1;
       loop
-        exit when instr(l_str2,substr(l_str1,i,j))=0 or i+j=length(l_str2);
+        exit when instr(l_str2,substr(l_str1,i,j))=0 or i+j-1>length(l_str2);
         l:=j;
         max_str:=substr(str1,i,j);
         j:=j+1;
