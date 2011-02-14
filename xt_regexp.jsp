@@ -26,7 +26,7 @@ public class XT_REGEXP
 
          Connection conn = new OracleDriver().defaultConnection();         
          ArrayDescriptor descriptor =
-            ArrayDescriptor.createDescriptor("SYS.ODCIVARCHAR2LIST", conn );
+            ArrayDescriptor.createDescriptor("VARCHAR2_TABLE", conn );
          oracle.sql.ARRAY outArray = new oracle.sql.ARRAY(descriptor,conn,retArray);
          
          return outArray;
@@ -65,7 +65,7 @@ public class XT_REGEXP
 /**
  * Function returns regexp matches with limit
  */ 
-  public static oracle.sql.ARRAY getMatches(java.lang.String pStr,java.lang.String pPattern,int pFlags,int pMaxCount)
+  public static oracle.sql.ARRAY getMatches(java.lang.String pStr,java.lang.String pPattern, int pGroup, int pFlags,int pMaxCount)
   throws SQLException 
   {
          List list = new ArrayList();
@@ -76,12 +76,12 @@ public class XT_REGEXP
          StringBuffer sb = new StringBuffer();
          int i=0;
          while(m.find() && (pMaxCount==0 || i++<pMaxCount)){
-             list.add(m.group());
+             list.add(m.group(pGroup));
          }
 
          Connection conn = new OracleDriver().defaultConnection();         
          ArrayDescriptor descriptor =
-            ArrayDescriptor.createDescriptor("SYS.ODCIVARCHAR2LIST", conn );
+            ArrayDescriptor.createDescriptor("VARCHAR2_TABLE", conn );
          oracle.sql.ARRAY outArray = new oracle.sql.ARRAY(descriptor,conn,list.toArray());
          
          return outArray;
@@ -90,7 +90,7 @@ public class XT_REGEXP
 /**
  * Function returns joined regexp matches
  */ 
-  public static java.lang.String joinMatches(java.lang.String pStr,java.lang.String pPattern, int pFlags, java.lang.String pDelim)
+  public static java.lang.String joinMatches(java.lang.String pStr,java.lang.String pPattern, int pGroup, int pFlags, java.lang.String pDelim)
   throws SQLException 
   {
          if(pPattern==null) pPattern="";
@@ -101,7 +101,7 @@ public class XT_REGEXP
 
          boolean b=m.find();
          while(b){
-             sb.append(m.group());
+             sb.append(m.group(pGroup));
              b=m.find();
              if (b) sb.append(pDelim);
          }

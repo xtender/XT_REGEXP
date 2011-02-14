@@ -66,6 +66,7 @@ Function return true, if input string matches regular explression. First paramet
 	function get_matches(
 		pStr varchar2,
 		pPattern varchar2,
+		pGroup number default 0,
 		pMaxCount number default 0,
 			pCANON_EQ number default 0,
 			pCASE_INSENSITIVE number default 0,
@@ -77,7 +78,7 @@ Function return true, if input string matches regular explression. First paramet
 		return varchar2_table;
 
 
-Function returns collection of matched strings. Params like previous function, excepts pMaxCount - max count strings, if not set or equal 0 returns all.
+Function returns collection of matched group strings. Params like previous function, excepts pMaxCount - max count strings, if not set or equal 0 returns all.
 
 Example:
 
@@ -90,7 +91,7 @@ Example:
 
 
 
-	function join_matches(pStr varchar2,pPattern varchar2,pDelim varchar2 default ';',
+	function join_matches(pStr varchar2,pPattern varchar2,pGroup number default 0,pDelim varchar2 default ';',
 			pCANON_EQ number default 0,
 			pCASE_INSENSITIVE number default 0,
 			pCOMMENTS         number default 0,

@@ -10,7 +10,7 @@ create or replace package xt_regexp is
 	UNIX_LINES        constant number := 1;
 
   function split_simple(p_str in varchar2,p_delim in varchar2)
-    return SYS.ODCIVARCHAR2LIST pipelined;
+    return varchar2_table pipelined;
     
   function clob_split_simple(p_clob in clob,p_delim in varchar2) 
     return clob_table pipelined;
@@ -18,12 +18,12 @@ create or replace package xt_regexp is
  * function split. Split string by regexp and returns 
  */
   function split_j(pStr varchar2, pDelimRegexp varchar2, pMaxCount number)
-    return SYS.ODCIVARCHAR2LIST
+    return varchar2_table
     IS LANGUAGE JAVA
     name 'com.xt_r.XT_REGEXP.split(java.lang.String,java.lang.String,int) return oracle.sql.ARRAY';
 
   function split(pStr varchar2,pDelimRegexp varchar2,pMaxCount number default 0)
-    return SYS.ODCIVARCHAR2LIST;
+    return varchar2_table;
 /**
  * Matches
  */
@@ -63,14 +63,15 @@ create or replace package xt_regexp is
 /**
  * get_matches
  */
-  function get_matches_j(pStr varchar2,pPattern varchar2,pFlags number,pMaxCount number)
-    return SYS.ODCIVARCHAR2LIST
+  function get_matches_j(pStr varchar2,pPattern varchar2,pGroup number, pFlags number,pMaxCount number)
+    return varchar2_table
     IS LANGUAGE JAVA
-    name 'com.xt_r.XT_REGEXP.getMatches(java.lang.String,java.lang.String,int,int) return oracle.sql.ARRAY';
+    name 'com.xt_r.XT_REGEXP.getMatches(java.lang.String,java.lang.String,int,int,int) return oracle.sql.ARRAY';
 
   function get_matches(
     pStr varchar2,
     pPattern varchar2,
+    pGroup number default 0,
     pMaxCount number default 0,
         pCANON_EQ number default 0,
         pCASE_INSENSITIVE number default 0,
@@ -79,16 +80,16 @@ create or replace package xt_regexp is
         pMULTILINE        number default 0,
         pUNICODE_CAS      number default 0,
         pUNIX_LINES       number default 0)
-    return SYS.ODCIVARCHAR2LIST;
+    return varchar2_table;
 /**
  * join_matches
  */
-  function join_matches_j(pStr varchar2,pPattern varchar2,pFlags number, pDelim varchar2)
+  function join_matches_j(pStr varchar2,pPattern varchar2,pGroup number,pFlags number, pDelim varchar2)
     return varchar2
     IS LANGUAGE JAVA
     name 'com.xt_r.XT_REGEXP.joinMatches(java.lang.String,java.lang.String,int,java.lang.String) return java.lang.String';
 
-  function join_matches(pStr varchar2,pPattern varchar2,pDelim varchar2 default ';',
+  function join_matches(pStr varchar2,pPattern varchar2,pGroup number default 0,pDelim varchar2 default ';',
         pCANON_EQ number default 0,
         pCASE_INSENSITIVE number default 0,
         pCOMMENTS         number default 0,
@@ -127,7 +128,7 @@ create or replace package body xt_regexp is
  * function split_simple
  */
   function split_simple(p_str in varchar2,p_delim in varchar2)
-  return SYS.ODCIVARCHAR2LIST pipelined is
+  return varchar2_table pipelined is
     l_b number:=1;
     l_e number:=1;
   begin
@@ -167,7 +168,7 @@ create or replace package body xt_regexp is
  * function split
  */
   function split(pStr varchar2,pDelimRegexp varchar2,pMaxCount number default 0)
-    return SYS.ODCIVARCHAR2LIST is
+    return varchar2_table is
     begin
       return split_j(pStr, pDelimRegexp, pMaxCount);
     end split;
@@ -227,6 +228,7 @@ create or replace package body xt_regexp is
   function get_matches(
     pStr varchar2,
     pPattern varchar2,
+    pGroup number default 0,
     pMaxCount number default 0,
         pCANON_EQ number default 0,
         pCASE_INSENSITIVE number default 0,
@@ -235,7 +237,7 @@ create or replace package body xt_regexp is
         pMULTILINE        number default 0,
         pUNICODE_CAS      number default 0,
         pUNIX_LINES       number default 0)
-    return SYS.ODCIVARCHAR2LIST is
+    return varchar2_table is
     lFlags number;
     begin
       lFlags:=case when pCANON_EQ        >0 then CANON_EQ          else 0 end+
@@ -246,13 +248,13 @@ create or replace package body xt_regexp is
                case when pUNICODE_CAS     >0 then UNICODE_CAS      else 0 end+
                case when pUNIX_LINES      >0 then UNIX_LINES       else 0 end;
       dbms_output.put_line(lFlags);
-      return get_matches_j(pStr,pPattern,lFlags,pMaxCount);
---        return SYS.ODCIVARCHAR2LIST(cast(pMaxCount as varchar2));
+      return get_matches_j(pStr,pPattern,pGroup,lFlags,pMaxCount);
+--        return varchar2_table(cast(pMaxCount as varchar2));
     end get_matches; 
 /**
  * function join_matches
  */
-  function join_matches(pStr varchar2,pPattern varchar2,pDelim varchar2 default ';',
+  function join_matches(pStr varchar2,pPattern varchar2, pGroup number default 0, pDelim varchar2 default ';',
         pCANON_EQ number default 0,
         pCASE_INSENSITIVE number default 0,
         pCOMMENTS         number default 0,
@@ -262,7 +264,7 @@ create or replace package body xt_regexp is
         pUNIX_LINES       number default 0)
     return varchar2 is 
     begin
-      return join_matches_j(pStr,pPattern,
+      return join_matches_j(pStr,pPattern,pGroup,
            case when pCANON_EQ        >0 then CANON_EQ             else 0 end+
                case when pCASE_INSENSITIVE>0 then CASE_INSENSITIVE else 0 end+
                case when pCOMMENTS        >0 then COMMENTS         else 0 end+
