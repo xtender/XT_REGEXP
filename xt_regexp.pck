@@ -141,10 +141,10 @@ create or replace package body xt_regexp is
         loop
           l_e:=dbms_lob.instr(p_clob,p_delim,l_b);
           if l_e>0 then
-            pipe row(dbms_lob.substr(p_clob,l_e-l_b,l_b));
+            pipe row(substr(p_clob,l_b,l_e-l_b));
             l_b:=l_e+1;
           else
-            pipe row(dbms_lob.substr(p_clob,dbms_lob.getlength(p_clob)+1-l_b,l_b));
+            pipe row(substr(p_clob,l_b,dbms_lob.getlength(p_clob)+1-l_b));
           end if;
         end loop;
   end clob_split_simple;
